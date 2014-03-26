@@ -47,7 +47,10 @@ module.exports = function (grunt) {
         }
       },
       jsTest: {
-        files: ['test/spec/{,*/}*.js'],
+        files: [
+          'test/spec/{,*/}*.js',
+          '<%= yeoman.app %>/scripts/{,*/}*.js'
+        ],
         tasks: ['newer:jshint:test', 'karma']
       },
       gruntfile: {
@@ -129,6 +132,8 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           dot: true,
+          flatten: true,
+          filter: 'isFile',
           cwd: '<%= yeoman.app %>/scripts',
           dest: '<%= yeoman.staging %>/',
           src: [
