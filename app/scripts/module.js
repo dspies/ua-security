@@ -1,2 +1,1 @@
-  angular.module('ua.security', []);
-
+angular.module('ua.security', []);

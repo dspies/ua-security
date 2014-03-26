@@ -160,7 +160,12 @@ module.exports = function (grunt) {
           '\t\'use strict\';',
           ''
         ].join('\n'),
-        footer: '\n}());'
+        footer: '\n}());',
+        process: function(src){
+          return src
+              .replace(/(^|\n)[ \t]*('use strict'|"use strict");?\s*/g, '$1')
+              .replace(/(^|\n)/g, '\n\t');
+        }
       },
       staging: {
         src: [

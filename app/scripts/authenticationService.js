@@ -1,54 +1,56 @@
-  angular.module('ua.security')
-    .provider('authenticationService', [function(){
+'use strict';
 
-      var authenticationUrl = '/login';
-      this.setAuthenticationUrl = function(value){
-        authenticationUrl = value;
-      };
+angular.module('ua.security')
+  .provider('authenticationService', [function(){
 
-      var logoutUrl = '/logout';
-      this.setLogoutUrl = function(value){
-        logoutUrl = value;
-      };
+    var authenticationUrl = '/login';
+    this.setAuthenticationUrl = function(value){
+      authenticationUrl = value;
+    };
 
-      function AuthenticationService($http, $q){
+    var logoutUrl = '/logout';
+    this.setLogoutUrl = function(value){
+      logoutUrl = value;
+    };
 
-        this.authenticate = function(username, password){
+    function AuthenticationService($http, $q){
 
-          var deferred = $q.defer();
+      this.authenticate = function(username, password){
 
-          var user = {
-            username: username,
-            password: password
-          };
+        var deferred = $q.defer();
 
-          $http.post(authenticationUrl, user)
-              .success(function(data){
-                return deferred.resolve(data);
-              })
-              .error(function(data, status){
-                return deferred.reject(status);
-              });
-
-          return deferred.promise;
+        var user = {
+          username: username,
+          password: password
         };
 
-        this.logout = function(){
-          var deferred = $q.defer();
+        $http.post(authenticationUrl, user)
+            .success(function(data){
+              return deferred.resolve(data);
+            })
+            .error(function(data, status){
+              return deferred.reject(status);
+            });
 
-          $http.post(logoutUrl)
-              .success(function(data){
-                deferred.resolve(data);
-              })
-              .error(function(data, status){
-                deferred.reject(status);
-              });
+        return deferred.promise;
+      };
 
-          return deferred.promise;
-        };
-      }
+      this.logout = function(){
+        var deferred = $q.defer();
 
-      this.$get = ['$http', '$q', function AuthenticationServiceFactory($http, $q){
-        return new AuthenticationService($http, $q);
-      }];
-    }]);
+        $http.post(logoutUrl)
+            .success(function(data){
+              deferred.resolve(data);
+            })
+            .error(function(data, status){
+              deferred.reject(status);
+            });
+
+        return deferred.promise;
+      };
+    }
+
+    this.$get = ['$http', '$q', function AuthenticationServiceFactory($http, $q){
+      return new AuthenticationService($http, $q);
+    }];
+  }]);
