@@ -129,6 +129,8 @@ module.exports = function (grunt) {
         files: [{
           expand: true,
           dot: true,
+          flatten: true,
+          filter: 'isFile',
           cwd: '<%= yeoman.app %>/scripts',
           dest: '<%= yeoman.staging %>/',
           src: [
