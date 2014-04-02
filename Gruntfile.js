@@ -212,8 +212,12 @@ module.exports = function (grunt) {
     'usemin'
   ]);
 
-  grunt.registerTask('default', [
+  grunt.registerTask('test-ci', [
     'test',
     'build'
+  ]);
+
+  grunt.registerTask('default', [
+    'test'
   ]);
 };
