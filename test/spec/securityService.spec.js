@@ -57,7 +57,7 @@
         expect(angular.isFunction(securityService.login)).toBe(true);
       });
 
-      it('is called successful, it stores the authenticated user in "currentUser" ' +
+      it('is called successfully, it stores the authenticated user in "currentUser" ' +
           'and returns the promise', function () {
 
         securityService.login(USERNAME, PASSWORD)
@@ -78,6 +78,8 @@
         securityService.login(USERNAME, PASSWORD)
             .then(function (user) {
               expect($http.defaults.headers.common['X-Auth-Token']).toBe(user.token);
+            }, function(error){
+              expect('errorCallback').not.toBe('called with ' + error);
             });
 
         deferred.resolve(POPULATED_USER);
