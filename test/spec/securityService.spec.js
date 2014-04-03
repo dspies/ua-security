@@ -16,13 +16,15 @@
     var securityService;
     var authenticationService;
     var deferred;
+    var $http;
 
     beforeEach(module('ua.security'));
 
     beforeEach(function () {
-      inject(function (_securityService_, _authenticationService_, $q) {
+      inject(function (_securityService_, _authenticationService_, $q, _$http_) {
         securityService = _securityService_;
         authenticationService = _authenticationService_;
+        $http = _$http_;
 
         deferred = $q.defer();
         spyOn(authenticationService, 'authenticate').andReturn(deferred.promise);
@@ -68,6 +70,17 @@
 
         deferred.resolve(POPULATED_USER);
         expect(authenticationService.authenticate).toHaveBeenCalledWith(USERNAME, PASSWORD);
+      });
+
+      it('is called successfully, it stores the token in ' +
+          '$http.defaults.headers.common', function () {
+
+        securityService.login(USERNAME, PASSWORD)
+            .then(function (user) {
+              expect($http.defaults.headers.common['X-Auth-Token']).toBe(user.token);
+            });
+
+        deferred.resolve(POPULATED_USER);
       });
 
       it('is called unsuccessfully, the current user is remains the same and the ' +
