@@ -3,6 +3,11 @@
 angular.module('ua.security')
   .provider('securityService', function(){
 
+    var authTokenHeader = 'X-Auth-Token';
+    this.setAuthTokenHeader = function(value){
+      authTokenHeader = value;
+    };
+
     function SecurityService(authenticationService, $http){
 
       var NULL_USER = { username: '', roles: []};
@@ -16,7 +21,7 @@ angular.module('ua.security')
         return authenticationService.authenticate(username, password)
             .then(function(user){
                 currentUser = user;
-                $http.defaults.headers.common['X-Auth-Token'] = user.token;
+                $http.defaults.headers.common[authTokenHeader] = user.token;
                 return user;
               });
       };
@@ -25,6 +30,7 @@ angular.module('ua.security')
         return authenticationService.logout()
             .then(function(){
               currentUser = NULL_USER;
+              $http.defaults.headers.common[authTokenHeader] = null;
             });
       };
 
