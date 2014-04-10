@@ -37,7 +37,6 @@
       };
 
       it('function exists', function(){
-        console.info('Checking whether the function exists');
         expect(angular.isFunction(authenticationService.authenticate)).toBe(true);
       });
 

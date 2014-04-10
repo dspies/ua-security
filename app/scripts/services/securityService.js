@@ -61,7 +61,7 @@ angular.module('ua.security')
         }));
       };
 
-      this.hasAnyRole = function (preferredRoles) {
+      this.hasAnyRoles = function (preferredRoles) {
         preferredRoles = generateArray(preferredRoles);
 
         //Return true if any of the preferred roles are present

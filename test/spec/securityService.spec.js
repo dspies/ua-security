@@ -240,26 +240,26 @@
         });
       });
 
-      describe('hasAnyRole function', function () {
+      describe('hasAnyRoles function', function () {
 
         it('exists', function () {
-          expect(angular.isFunction(securityService.hasAnyRole)).toBe(true);
+          expect(angular.isFunction(securityService.hasAnyRoles)).toBe(true);
         });
 
         it('returns true if the "currentUser" has any role supplied', function () {
           securityService.login(USERNAME, PASSWORD)
               .then(function () {
-                expect(securityService.hasAnyRole('ROLE_USER')).toBe(true);
-                expect(securityService.hasAnyRole(['ROLE_ADMIN'])).toBe(true);
-                expect(securityService.hasAnyRole('ROLE_USER, ROLE_ADMIN')).toBe(true);
-                expect(securityService.hasAnyRole(['ROLE_USER', 'ROLE_ADMIN'])).toBe(true);
-                expect(securityService.hasAnyRole('ROLE_SPECIAL, ROLE_ADMIN')).toBe(true);
-                expect(securityService.hasAnyRole(['ROLE_SPECIAL', 'ROLE_ADMIN'])).toBe(true);
+                expect(securityService.hasAnyRoles('ROLE_USER')).toBe(true);
+                expect(securityService.hasAnyRoles(['ROLE_ADMIN'])).toBe(true);
+                expect(securityService.hasAnyRoles('ROLE_USER, ROLE_ADMIN')).toBe(true);
+                expect(securityService.hasAnyRoles(['ROLE_USER', 'ROLE_ADMIN'])).toBe(true);
+                expect(securityService.hasAnyRoles('ROLE_SPECIAL, ROLE_ADMIN')).toBe(true);
+                expect(securityService.hasAnyRoles(['ROLE_SPECIAL', 'ROLE_ADMIN'])).toBe(true);
 
-                expect(securityService.hasAnyRole('ROLE_SPECIAL')).toBe(false);
-                expect(securityService.hasAnyRole(['ROLE_SUPER'])).toBe(false);
-                expect(securityService.hasAnyRole('ROLE_SUPER, ROLE_SPECIAL')).toBe(false);
-                expect(securityService.hasAnyRole(['ROLE_SUPER', 'ROLE_SPECIAL'])).toBe(false);
+                expect(securityService.hasAnyRoles('ROLE_SPECIAL')).toBe(false);
+                expect(securityService.hasAnyRoles(['ROLE_SUPER'])).toBe(false);
+                expect(securityService.hasAnyRoles('ROLE_SUPER, ROLE_SPECIAL')).toBe(false);
+                expect(securityService.hasAnyRoles(['ROLE_SUPER', 'ROLE_SPECIAL'])).toBe(false);
               });
 
           authDeferred.resolve(POPULATED_USER);
