@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html>
-  <head>
+<head>
     <meta charset='utf-8'>
     <meta http-equiv="X-UA-Compatible" content="chrome=1">
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -14,68 +14,83 @@
     <![endif]-->
 
     <title>ua-security by dspies</title>
-  </head>
+</head>
 
-  <body>
-    <header>
-      <div class="inner">
+<body>
+<header>
+    <div class="inner">
         <h1>ua-security</h1>
         <h2>Simple token-based security for AngularJS</h2>
         <a href="https://github.com/dspies/ua-security" class="button"><small>View project on</small>GitHub</a>
-      </div>
-    </header>
+    </div>
+</header>
 
-    <div id="content-wrapper">
-      <div class="inner clearfix">
+<div id="content-wrapper">
+    <div class="inner clearfix">
         <section id="main-content">
-          <h3>
-<a name="ua-security" class="anchor" href="#ua-security"><span class="octicon octicon-link"></span></a>ua-security</h3>
+            <h3><a name="ua-security" class="anchor" href="#ua-security"><span class="octicon octicon-link"></span></a>ua-security</h3>
+            <p>UA Security is a simple token-based security module for Angular JS applications. It contains a few configurable services to perform authentication against a RESTful endpoint, store the user credentials for future xhr requests, and perform common authorization functions.  Those authorization functions include:</p>
+            <ul>
+                <li>login: authenticate user against configured REST endpoint and store the user credentials locally</li>
+                <li>logout: request that the REST endpoint destroy its token and remove authenticated user locally</li>
+                <li>isAuthenticated: authenticated user exists</li>
+                <li>isAnonymous: no authenticated user exists</li>
+                <li>hasAllRoles: the authenticated user has all roles supplied</li>
+                <li>hasAnyRole: the authenticated user has any of the roles supplied</li>
+            </ul>
 
-<p>UA Security is a simple token-based security module for Angular JS applications. It contains a few configurable services to perform authentication against a RESTful endpoint, store the user credentials for future xhr requests, and perform common authorization functions.  Those authorization functions include:</p>
+            <h3><a name="usage" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Usage</h3>
+            <pre class="code">angular.module('your-app', ['ua.security']);</pre>
 
-<ul>
-<li>isAuthenticated: authenticated user exists</li>
-<li>isAnonymous: no authenticated user exists</li>
-<li>hasAllRoles: the authenticated user has all roles supplied</li>
-<li>hasAnyRole: the authenticated user has any of the roles supplied</li>
-</ul><h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+            <h3><a name="configuration" class="anchor" href="#configuration"><span class="octicon octicon-link"></span></a>Configuration</h3>
+            <ul>
+                <li><span class="pop">securityServiceProvider.setAuthTokenHeader</span>: the name of the key used to store the token when communicating with the REST endpoint</li>
+                <li><span class="pop">authenticationServiceProvider.setAuthenticationUrl</span>: the absolute url of the REST endpoint providing authentication</li>
+            </ul>
+            <p>Example</p>
+            <pre class="code">
+angular.module('your-app', ['ua.security'])
+  .config(function(authenticationServiceProvider, securityServiceProvider){
+    authenticationServiceProvider.setAuthenticationUrl = 'https://api.domain.com/login';
+    securityServiceProvider.setAuthTokenHeader = 'auth-token';
+  });</pre>
 
-<ul>
-<li>David Spies (<a href="https://github.com/dspies" class="user-mention">@dspies</a>)</li>
-</ul><h3>
-<a name="problems" class="anchor" href="#problems"><span class="octicon octicon-link"></span></a>Problems</h3>
+            <h3><a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+            <ul>
+                <li>David Spies (<a href="https://github.com/dspies" class="user-mention">@dspies</a>)</li>
+            </ul><h3>
+            <a name="problems" class="anchor" href="#problems"><span class="octicon octicon-link"></span></a>Problems</h3>
 
-<p>This project has a very specific scope at the moment, but feel free to contact me with any questions or suggestions.  I will update the <a href="https://github.com/dspies/ua-security/wiki">ua-security wiki</a> in future with a roadmap.  If you have problems, please file an <a href="https://github.com/dspies/ua-security/issues">issue</a> or better yet, file a pull request.</p>
+            <p>This project has a very specific scope at the moment, but feel free to contact me with any questions or suggestions.  I will update the <a href="https://github.com/dspies/ua-security/wiki">ua-security wiki</a> in future with a roadmap.  If you have problems, please file an <a href="https://github.com/dspies/ua-security/issues">issue</a> or better yet, file a pull request.</p>
         </section>
 
         <aside id="sidebar">
-          <a href="https://github.com/dspies/ua-security/zipball/master" class="button">
-            <small>Download</small>
-            .zip file
-          </a>
-          <a href="https://github.com/dspies/ua-security/tarball/master" class="button">
-            <small>Download</small>
-            .tar.gz file
-          </a>
+            <a href="https://github.com/dspies/ua-security/zipball/master" class="button">
+                <small>Download</small>
+                .zip file
+            </a>
+            <a href="https://github.com/dspies/ua-security/tarball/master" class="button">
+                <small>Download</small>
+                .tar.gz file
+            </a>
 
-          <p class="repo-owner"><a href="https://github.com/dspies/ua-security"></a> is maintained by <a href="https://github.com/dspies">dspies</a>.</p>
+            <p class="repo-owner"><a href="https://github.com/dspies/ua-security"></a> is maintained by <a href="https://github.com/dspies">dspies</a>.</p>
 
-          <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
+            <p>This page was generated by <a href="https://pages.github.com">GitHub Pages</a> using the Architect theme by <a href="https://twitter.com/jasonlong">Jason Long</a>.</p>
         </aside>
-      </div>
     </div>
-  
-  <script>
+</div>
+
+<script>
     (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+        (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
     })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
-  
+
     ga('create', 'UA-49567032-1', 'dspies.github.io');
     ga('send', 'pageview');
-  
-  </script>
-  
-  </body>
+
+</script>
+
+</body>
 </html>
