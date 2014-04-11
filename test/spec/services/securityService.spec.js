@@ -21,13 +21,15 @@
       var logoutDeferred;
       var $http;
       var $rootScope;
+      var userStorageService;
 
       beforeEach(module('ua.security'));
 
       beforeEach(function () {
-        inject(function (_securityService_, _authenticationService_, $q, _$http_, _$rootScope_) {
+        inject(function (_securityService_, _authenticationService_, $q, _$http_, _$rootScope_, _userStorageService_) {
           securityService = _securityService_;
           authenticationService = _authenticationService_;
+          userStorageService = _userStorageService_;
           $http = _$http_;
           $rootScope = _$rootScope_;
 
@@ -54,6 +56,11 @@
           expect(securityService.getCurrentUser()).toEqual(NULL_USER);
         });
 
+        it('returns the user from the user store', inject(function () {
+          spyOn(userStorageService, 'retrieveUser').andReturn(POPULATED_USER);
+
+          expect(securityService.getCurrentUser()).toBe(POPULATED_USER);
+        }));
       });
 
       describe('login function', function(){
@@ -66,10 +73,19 @@
         it('is called successfully, it stores the authenticated user in "currentUser" ' +
             'and returns the promise', function () {
 
+          //Mock the userStorageService.storeUser, store the user for later expectations
+          var storedUser;
+          spyOn(userStorageService, 'storeUser').andCallFake(function(user){
+            storedUser = user;
+          });
+
           securityService.login(USERNAME, PASSWORD)
               .then(function(user){
                 expect(user).not.toBeNull();
                 expect(user).toEqual(POPULATED_USER);
+
+                expect(userStorageService.storeUser).toHaveBeenCalledWith(POPULATED_USER);
+                expect(storedUser).toBe(POPULATED_USER);
               }, function(error){
                 expect('errorCallback').not.toBe('called with ' + error);
               });
@@ -100,7 +116,7 @@
               }, function(error){
                 expect(error).not.toBeNull();
                 expect(error).toEqual('403');
-                expect(securityService.getCurrentUser()).toEqual(NULL_USER);
+                expect(securityService.getCurrentUser()).toBe(NULL_USER);
               });
 
           expect(authenticationService.authenticate).toHaveBeenCalledWith(USERNAME, PASSWORD);
@@ -118,17 +134,11 @@
 
         it('is successful and sets the "currentUser" to "NULL_USER"', function(){
 
-          securityService.login(USERNAME, PASSWORD)
-            .then(function (user) {
-              expect(user).not.toBe(NULL_USER);
-            });
-
-          authDeferred.resolve(POPULATED_USER);
-          $rootScope.$apply();
+          spyOn(userStorageService, 'deleteUser');
 
           securityService.logout()
             .then(function(){
-              expect(securityService.getCurrentUser()).toEqual(NULL_USER);
+              expect(userStorageService.deleteUser).toHaveBeenCalled();
             }, function(error){
               expect('errorCallback').not.toBe('called with ' + error);
             });
@@ -178,15 +188,14 @@
         });
 
         it('returns true when the "currentUser" is not the "NULL_USER"', function () {
-          securityService.login(USERNAME, PASSWORD)
-              .then(function(){
-                expect(securityService.isAuthenticated()).toBe(true);
-              });
+          spyOn(userStorageService, 'retrieveUser').andReturn(POPULATED_USER);
 
-          authDeferred.resolve(POPULATED_USER);
+          expect(securityService.isAuthenticated()).toBe(true);
         });
 
         it('returns false when "currentUser" is the "NULL_USER"', function () {
+          spyOn(userStorageService, 'retrieveUser').andReturn(null);
+
           expect(securityService.isAuthenticated()).toBe(false);
         });
 
@@ -199,17 +208,14 @@
         });
 
         it('returns true when the "currentUser" is the "NULL_USER"', function () {
+          spyOn(userStorageService, 'retrieveUser').andReturn(null);
+
           expect(securityService.isAnonymous()).toBe(true);
         });
 
         it('returns false when the "currentUser" is not the "NULL_USER"', function(){
-
-          securityService.login(USERNAME, PASSWORD)
-              .then(function(){
-                expect(securityService.isAnonymous()).toBe(false);
-              });
-
-          authDeferred.resolve (POPULATED_USER);
+          spyOn(userStorageService, 'retrieveUser').andReturn(POPULATED_USER);
+          expect(securityService.isAnonymous()).toBe(false);
         });
       });
 
@@ -219,24 +225,22 @@
           expect(angular.isFunction(securityService.hasAllRoles)).toBe(true);
         });
 
-        it('returns true is the "currentUser" has all roles supplied', function(){
+        it('returns true is the "currentUser" has all roles supplied, and false otherwise', function(){
 
-          securityService.login(USERNAME, PASSWORD)
-              .then(function(){
-                expect(securityService.hasAllRoles('ROLE_USER')).toBe(true);
-                expect(securityService.hasAllRoles(['ROLE_USER'])).toBe(true);
-                expect(securityService.hasAllRoles('ROLE_USER, ROLE_ADMIN')).toBe(true);
-                expect(securityService.hasAllRoles(['ROLE_USER', 'ROLE_ADMIN'])).toBe(true);
+          spyOn(userStorageService, 'retrieveUser').andReturn(POPULATED_USER);
 
-                expect(securityService.hasAllRoles('alert("hello"),console.log("hello")')).toBe(false);
+          //Situations that should result in truthy result
+          expect(securityService.hasAllRoles('ROLE_USER')).toBe(true);
+          expect(securityService.hasAllRoles(['ROLE_USER'])).toBe(true);
+          expect(securityService.hasAllRoles('ROLE_USER, ROLE_ADMIN')).toBe(true);
+          expect(securityService.hasAllRoles(['ROLE_USER', 'ROLE_ADMIN'])).toBe(true);
 
-                expect(securityService.hasAllRoles('ROLE_SUPER')).toBe(false);
-                expect(securityService.hasAllRoles(['ROLE_SUPER'])).toBe(false);
-                expect(securityService.hasAllRoles('ROLE_USER, ROLE_SUPER')).toBe(false);
-                expect(securityService.hasAllRoles(['ROLE_USER', 'ROLE_SUPER'])).toBe(false);
-              });
-
-          authDeferred.resolve (POPULATED_USER);
+          //Situations that should result in falsy result
+          expect(securityService.hasAllRoles('alert("hello"),console.log("hello")')).toBe(false);
+          expect(securityService.hasAllRoles('ROLE_SUPER')).toBe(false);
+          expect(securityService.hasAllRoles(['ROLE_SUPER'])).toBe(false);
+          expect(securityService.hasAllRoles('ROLE_USER, ROLE_SUPER')).toBe(false);
+          expect(securityService.hasAllRoles(['ROLE_USER', 'ROLE_SUPER'])).toBe(false);
         });
       });
 
@@ -247,23 +251,22 @@
         });
 
         it('returns true if the "currentUser" has any role supplied', function () {
-          securityService.login(USERNAME, PASSWORD)
-              .then(function () {
-                expect(securityService.hasAnyRoles('ROLE_USER')).toBe(true);
-                expect(securityService.hasAnyRoles(['ROLE_ADMIN'])).toBe(true);
-                expect(securityService.hasAnyRoles('ROLE_USER, ROLE_ADMIN')).toBe(true);
-                expect(securityService.hasAnyRoles(['ROLE_USER', 'ROLE_ADMIN'])).toBe(true);
-                expect(securityService.hasAnyRoles('ROLE_SPECIAL, ROLE_ADMIN')).toBe(true);
-                expect(securityService.hasAnyRoles(['ROLE_SPECIAL', 'ROLE_ADMIN'])).toBe(true);
 
-                expect(securityService.hasAnyRoles('ROLE_SPECIAL')).toBe(false);
-                expect(securityService.hasAnyRoles(['ROLE_SUPER'])).toBe(false);
-                expect(securityService.hasAnyRoles('ROLE_SUPER, ROLE_SPECIAL')).toBe(false);
-                expect(securityService.hasAnyRoles(['ROLE_SUPER', 'ROLE_SPECIAL'])).toBe(false);
-              });
+          spyOn(userStorageService, 'retrieveUser').andReturn(POPULATED_USER);
 
-          authDeferred.resolve(POPULATED_USER);
+          //Situations that should return truthy result
+          expect(securityService.hasAnyRoles('ROLE_USER')).toBe(true);
+          expect(securityService.hasAnyRoles(['ROLE_ADMIN'])).toBe(true);
+          expect(securityService.hasAnyRoles('ROLE_USER, ROLE_ADMIN')).toBe(true);
+          expect(securityService.hasAnyRoles(['ROLE_USER', 'ROLE_ADMIN'])).toBe(true);
+          expect(securityService.hasAnyRoles('ROLE_SPECIAL, ROLE_ADMIN')).toBe(true);
+          expect(securityService.hasAnyRoles(['ROLE_SPECIAL', 'ROLE_ADMIN'])).toBe(true);
 
+          //Situations that should return falsy result
+          expect(securityService.hasAnyRoles('ROLE_SPECIAL')).toBe(false);
+          expect(securityService.hasAnyRoles(['ROLE_SUPER'])).toBe(false);
+          expect(securityService.hasAnyRoles('ROLE_SUPER, ROLE_SPECIAL')).toBe(false);
+          expect(securityService.hasAnyRoles(['ROLE_SUPER', 'ROLE_SPECIAL'])).toBe(false);
         });
       });
     });

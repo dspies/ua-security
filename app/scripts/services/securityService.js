@@ -8,38 +8,39 @@ angular.module('ua.security')
       authTokenHeader = value;
     };
 
-    function SecurityService(authenticationService, $http){
+    function SecurityService(authenticationService, userStorageService, $http){
 
       var NULL_USER = { username: '', roles: []};
-      var currentUser = NULL_USER;
 
       this.getCurrentUser = function(){
-        return currentUser;
+        return userStorageService.retrieveUser() || NULL_USER;
       };
 
       this.login = function(username, password){
         return authenticationService.authenticate(username, password)
-            .then(function(user){
-                currentUser = user;
-                $http.defaults.headers.common[authTokenHeader] = user.token;
-                return user;
-              });
+          .then(function(user){
+              userStorageService.storeUser(user);
+              $http.defaults.headers.common[authTokenHeader] = user.token;
+              return user;
+            }, function () {
+              userStorageService.deleteUser();
+            });
       };
 
       this.logout = function () {
         return authenticationService.logout()
             .then(function(){
-              currentUser = NULL_USER;
+              userStorageService.deleteUser();
               $http.defaults.headers.common[authTokenHeader] = null;
             });
       };
 
       this.isAuthenticated = function () {
-        return (currentUser !== NULL_USER);
+        return (this.getCurrentUser() !== NULL_USER);
       };
 
       this.isAnonymous = function(){
-        return (currentUser === NULL_USER);
+        return (this.getCurrentUser() === NULL_USER);
       };
 
       function generateArray(str) {
@@ -55,23 +56,28 @@ angular.module('ua.security')
       this.hasAllRoles = function (requiredRoles) {
         requiredRoles = generateArray(requiredRoles);
 
+        var currentRoles = this.getCurrentUser().roles;
+
         //Every required role is in the current user's roles
         return (requiredRoles.every(function(role){
-          return currentUser.roles.indexOf(role) !== -1;
+          return currentRoles.indexOf(role) !== -1;
         }));
       };
 
       this.hasAnyRoles = function (preferredRoles) {
         preferredRoles = generateArray(preferredRoles);
 
+        var currentRoles = this.getCurrentUser().roles;
+
         //Return true if any of the preferred roles are present
         return (preferredRoles.some(function(role){
-          return currentUser.roles.indexOf(role) !== -1;
+          return currentRoles.indexOf(role) !== -1;
         }));
       };
     }
 
-    this.$get = ['authenticationService', '$http', function(authenticationService, $http){
-      return new SecurityService(authenticationService, $http);
+    this.$get = ['authenticationService', 'userStorageService', '$http',
+         function(authenticationService,   userStorageService,   $http){
+      return new SecurityService(authenticationService, userStorageService, $http);
     }];
   });
