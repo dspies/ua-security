@@ -3,22 +3,22 @@
 angular.module('ua.security')
   .provider('userStorageService', function () {
 
-    function UserStorageService(){
+    function UserStorageService($window){
       this.storeUser = function (user) {
-        window.sessionStorage.setItem('ua-user', user);
+        $window.sessionStorage.setItem('ua-user', user);
       };
 
       this.retrieveUser = function () {
-        return window.sessionStorage.getItem('ua-user');
+        return $window.sessionStorage.getItem('ua-user');
       };
 
       this.deleteUser = function(){
-        window.sessionStorage.removeItem('ua-user');
+        $window.sessionStorage.removeItem('ua-user');
       };
     }
 
-    this.$get = [function(){
-      return new UserStorageService();
+    this.$get = ['$window', function($window){
+      return new UserStorageService($window);
     }];
 
   });
