@@ -94,19 +94,6 @@
           expect(authenticationService.authenticate).toHaveBeenCalledWith(USERNAME, PASSWORD);
         });
 
-        it('is called successfully, it stores the token in ' +
-            '$http.defaults.headers.common', function () {
-
-          securityService.login(USERNAME, PASSWORD)
-              .then(function (user) {
-                expect($http.defaults.headers.common['X-Auth-Token']).toBe(user.token);
-              }, function(error){
-                expect('errorCallback').not.toBe('called with ' + error);
-              });
-
-          authDeferred.resolve(POPULATED_USER);
-        });
-
         it('is called unsuccessfully, the current user is remains the same and the ' +
             'promise is rejected', function () {
 
@@ -143,23 +130,6 @@
               expect('errorCallback').not.toBe('called with ' + error);
             });
 
-          logoutDeferred.resolve();
-
-          expect(authenticationService.logout).toHaveBeenCalled();
-        });
-
-        it('is successful and sets the authToken to null', function(){
-          securityService.login(USERNAME, PASSWORD)
-            .then(function(user){
-              expect($http.defaults.headers.common['X-Auth-Token']).toBe(user.token);
-            });
-          authDeferred.resolve(POPULATED_USER);
-          $rootScope.$apply();
-
-          securityService.logout()
-            .then(function(){
-              expect($http.defaults.headers.common['X-Auth-Token']).toBeNull();
-            });
           logoutDeferred.resolve();
 
           expect(authenticationService.logout).toHaveBeenCalled();
@@ -269,72 +239,36 @@
           expect(securityService.hasAnyRoles(['ROLE_SUPER', 'ROLE_SPECIAL'])).toBe(false);
         });
       });
+
+      describe('getAuthTokenHeader', function () {
+
+        it('exists', function () {
+          expect(angular.isFunction(securityService.getAuthTokenHeader)).toBe(true);
+        });
+
+        it('returns default auth token header "X-Auth-Token"', function () {
+          expect(securityService.getAuthTokenHeader()).toBe('X-Auth-Token');
+        });
+      });
     });
 
     describe('with configuration', function () {
 
       var securityService;
-      var authenticationService;
-      var authDeferred;
-      var logoutDeferred;
-      var $http;
       var authTokenHeaderValue = 'authToken';
-      var $rootScope;
 
       beforeEach(module('ua.security', function(securityServiceProvider){
         securityServiceProvider.setAuthTokenHeader(authTokenHeaderValue);
       }));
 
-      beforeEach(function(){
-        inject(function(_securityService_, _authenticationService_, _$http_, $q, _$rootScope_){
-          securityService = _securityService_;
-          authenticationService = _authenticationService_;
-          $http = _$http_;
-          $rootScope = _$rootScope_;
+      beforeEach(inject(function(_securityService_){
+        securityService = _securityService_;
+      }));
 
-          authDeferred = $q.defer();
-          logoutDeferred = $q.defer();
-          spyOn(authenticationService, 'authenticate').andReturn(authDeferred.promise);
-          spyOn(authenticationService, 'logout').andReturn(logoutDeferred.promise);
-        });
-      });
+      describe('getAuthTokenHeader', function () {
 
-      afterEach(function(){
-        inject(function ($rootScope) {
-          $rootScope.$apply();
-        });
-      });
-
-      describe('login', function () {
-
-        it('is successful, AuthTokenHeader is set with configured token name', function(){
-          securityService.login(USERNAME, PASSWORD)
-              .then(function (user) {
-                expect($http.defaults.headers.common[authTokenHeaderValue]).toBe(user.token);
-              });
-
-          authDeferred.resolve(POPULATED_USER);
-        });
-      });
-
-      describe('logout', function () {
-
-        it('is successful and AuthTokenHeader is blank with configured token name', function () {
-          securityService.login(USERNAME, PASSWORD)
-            .then(function (user) {
-              expect($http.defaults.headers.common[authTokenHeaderValue]).toBe(user.token);
-            });
-
-          authDeferred.resolve(POPULATED_USER);
-          $rootScope.$apply();
-
-          securityService.logout()
-            .then(function(){
-              expect($http.defaults.headers.common[authTokenHeaderValue]).toBeNull();
-            });
-          logoutDeferred.resolve();
-
-          expect(authenticationService.logout).toHaveBeenCalled();
+        it('returns configured auth token header', function () {
+          expect(securityService.getAuthTokenHeader()).toBe(authTokenHeaderValue);
         });
       });
 

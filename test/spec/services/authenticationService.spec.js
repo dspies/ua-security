@@ -2,9 +2,23 @@
 
   'use strict';
 
+  var DEFAULT_USERNAME = 'user';
+  var DEFAULT_PASSWORD = 'password';
+
+  var DEFAULT_USER_CREDENTIALS = {
+    username: DEFAULT_USERNAME,
+    password: DEFAULT_PASSWORD
+  };
+
+  var POPULATED_USER = {
+    username: DEFAULT_USERNAME,
+    token: 'IAmAHappyToken',
+    roles: ['ROLE_USER', 'ROLE_ADMIN']
+  };
+
   //Test the authentication service without supplying configuration
   // variables.  The authentication service will use its defaults
-  describe('authenticationService without configuration', function(){
+  describe('authenticationService (default configuration)', function(){
 
     var authenticationService;
     var $httpBackend;
@@ -24,28 +38,16 @@
     //define authentication url in configuration
     describe('authenticate', function(){
 
-      var username = 'user';
-      var password = 'password';
-      var userCredentials = {
-        username: username,
-        password: password
-      };
-      var successfulUserReturned = {
-        username: username,
-        token: 'IAmAHappyToken',
-        roles: ['ROLE_USER', 'ROLE_ADMIN']
-      };
-
       it('function exists', function(){
         expect(angular.isFunction(authenticationService.authenticate)).toBe(true);
       });
 
       it('is successful with good credentials and returns a promise from authentication endpoint', function(){
 
-        $httpBackend.expectPOST('/login', userCredentials)
-            .respond(200, successfulUserReturned);
+        $httpBackend.expectPOST('/login', DEFAULT_USER_CREDENTIALS)
+            .respond(200, POPULATED_USER);
 
-        var returnedPromise = authenticationService.authenticate(username, password);
+        var returnedPromise = authenticationService.authenticate(DEFAULT_USERNAME, DEFAULT_PASSWORD);
         expect(angular.isFunction(returnedPromise.then)).toBe(true);
 
         returnedPromise.then(function(data){
@@ -57,10 +59,10 @@
 
       it('fails to authenticate with bad credentials and returns 403 error from authentication endpoint', function(){
 
-        $httpBackend.expectPOST('/login', userCredentials)
+        $httpBackend.expectPOST('/login', DEFAULT_USER_CREDENTIALS)
             .respond(403, '');
 
-        var returnedPromise = authenticationService.authenticate(username, password);
+        var returnedPromise = authenticationService.authenticate(DEFAULT_USERNAME, DEFAULT_PASSWORD);
         expect(angular.isFunction(returnedPromise.then)).toBe(true);
 
         returnedPromise.then(
@@ -80,19 +82,17 @@
         expect(angular.isFunction(authenticationService.logout)).toBe(true);
       });
 
-      it('is successful with a header auth token and returns a promise from the logout endpoint', function(){
+      it('is successful with a header auth token and returns a promise from the logout endpoint', inject(function(securityService){
 
-        var $http;
-        var authTokenHeaders = {'x-auth-token': 'IAmYourToken'};
-
-        inject(function(_$http_){
-          $http = _$http_;
-          $http.defaults.headers.common = authTokenHeaders;
-        });
+        //TODO Remove the ugly test coupling created by the interceptor
+        spyOn(securityService, 'isAuthenticated').andReturn(true);
+        spyOn(securityService, 'getCurrentUser').andReturn(POPULATED_USER);
 
         $httpBackend.expectPOST('/logout',
             undefined,
-            authTokenHeaders
+            function(headers){
+              return headers['X-Auth-Token'] === POPULATED_USER.token;
+            }
         ).respond(200, '');
 
         var returnedPromise = authenticationService.logout();
@@ -104,21 +104,15 @@
 
         $httpBackend.flush();
 
-      });
+      }));
 
       it('fails without a header auth token and returns 404 error from logout endpoint', function(){
 
-        var $http;
-        var authTokenHeaders = {'x-auth-token': 'IAmYourToken'};
-
-        inject(function(_$http_){
-          $http = _$http_;
-          $http.defaults.headers.common = authTokenHeaders;
-        });
-
         $httpBackend.expectPOST('/logout',
             undefined,
-            authTokenHeaders
+            function(header){
+              return !('X-Auth-Token' in header);
+            }
         ).respond(404, '');
 
         var returnedPromise = authenticationService.logout();
@@ -145,7 +139,7 @@
 
   //Test the authentication service with the authenticationUrl and
   // logoutUrl provided to the service via configuration variables
-  describe('authenticationService with configuration', function(){
+  describe('authenticationService (with configuration)', function(){
 
     var authenticationService;
     var $httpBackend;
@@ -168,28 +162,16 @@
     //define authentication url in configuration
     describe('authenticate', function(){
 
-      var username = 'user';
-      var password = 'password';
-      var userCredentials = {
-        username: username,
-        password: password
-      };
-      var successfulUserReturned = {
-        username: username,
-        token: 'IAmAHappyToken',
-        roles: ['ROLE_USER', 'ROLE_ADMIN']
-      };
-
       it('function exists', function(){
         expect(angular.isFunction(authenticationService.authenticate)).toBe(true);
       });
 
       it('is successful with good credentials and returns a promise from authentication endpoint', function(){
 
-        $httpBackend.expectPOST('/myLogin', userCredentials)
-            .respond(200, successfulUserReturned);
+        $httpBackend.expectPOST('/myLogin', DEFAULT_USER_CREDENTIALS)
+            .respond(200, POPULATED_USER);
 
-        var returnedPromise = authenticationService.authenticate(username, password);
+        var returnedPromise = authenticationService.authenticate(DEFAULT_USERNAME, DEFAULT_PASSWORD);
         expect(angular.isFunction(returnedPromise.then)).toBe(true);
 
         returnedPromise.then(function(data){
@@ -201,10 +183,10 @@
 
       it('fails to authenticate with bad credentials and returns 403 error from authentication endpoint', function(){
 
-        $httpBackend.expectPOST('/myLogin', userCredentials)
+        $httpBackend.expectPOST('/myLogin', DEFAULT_USER_CREDENTIALS)
             .respond(403, '');
 
-        var returnedPromise = authenticationService.authenticate(username, password);
+        var returnedPromise = authenticationService.authenticate(DEFAULT_USERNAME, DEFAULT_PASSWORD);
         expect(angular.isFunction(returnedPromise.then)).toBe(true);
 
         returnedPromise.then(
@@ -214,9 +196,7 @@
             });
 
         $httpBackend.flush();
-
       });
-
     });
 
     describe('logout', function(){
@@ -224,19 +204,17 @@
         expect(angular.isFunction(authenticationService.logout)).toBe(true);
       });
 
-      it('is successful with a header auth token and returns a promise from the logout endpoint', function(){
+      it('is successful with a header auth token and returns a promise from the logout endpoint', inject(function(securityService){
 
-        var $http;
-        var authTokenHeaders = {'x-auth-token': 'IAmYourToken'};
-
-        inject(function(_$http_){
-          $http = _$http_;
-          $http.defaults.headers.common = authTokenHeaders;
-        });
+        //TODO Remove the ugly test coupling created by the interceptor
+        spyOn(securityService, 'isAuthenticated').andReturn(true);
+        spyOn(securityService, 'getCurrentUser').andReturn(POPULATED_USER);
 
         $httpBackend.expectPOST('/myLogout',
             undefined,
-            authTokenHeaders
+            function(headers){
+              return headers['X-Auth-Token'] === POPULATED_USER.token;
+            }
         ).respond(200, '');
 
         var returnedPromise = authenticationService.logout();
@@ -248,21 +226,15 @@
 
         $httpBackend.flush();
 
-      });
+      }));
 
       it('fails without a header auth token and returns 404 error from logout endpoint', function(){
 
-        var $http;
-        var authTokenHeaders = {'x-auth-token': 'IAmYourToken'};
-
-        inject(function(_$http_){
-          $http = _$http_;
-          $http.defaults.headers.common = authTokenHeaders;
-        });
-
         $httpBackend.expectPOST('/myLogout',
             undefined,
-            authTokenHeaders
+            function(headers){
+              return !('X-Auth-Token' in headers);
+            }
         ).respond(404, '');
 
         var returnedPromise = authenticationService.logout();

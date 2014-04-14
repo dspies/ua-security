@@ -8,7 +8,7 @@ angular.module('ua.security')
       authTokenHeader = value;
     };
 
-    function SecurityService(authenticationService, userStorageService, $http){
+    function SecurityService(authenticationService, userStorageService){
 
       var NULL_USER = { username: '', roles: []};
 
@@ -16,11 +16,14 @@ angular.module('ua.security')
         return userStorageService.retrieveUser() || NULL_USER;
       };
 
+      this.getAuthTokenHeader = function () {
+        return authTokenHeader;
+      };
+
       this.login = function(username, password){
         return authenticationService.authenticate(username, password)
           .then(function(user){
               userStorageService.storeUser(user);
-              $http.defaults.headers.common[authTokenHeader] = user.token;
               return user;
             }, function () {
               userStorageService.deleteUser();
@@ -31,7 +34,6 @@ angular.module('ua.security')
         return authenticationService.logout()
             .then(function(){
               userStorageService.deleteUser();
-              $http.defaults.headers.common[authTokenHeader] = null;
             });
       };
 
@@ -74,10 +76,11 @@ angular.module('ua.security')
           return currentRoles.indexOf(role) !== -1;
         }));
       };
+
     }
 
-    this.$get = ['authenticationService', 'userStorageService', '$http',
-         function(authenticationService,   userStorageService,   $http){
-      return new SecurityService(authenticationService, userStorageService, $http);
+    this.$get = ['authenticationService', 'userStorageService',
+         function(authenticationService,   userStorageService){
+      return new SecurityService(authenticationService, userStorageService);
     }];
   });
