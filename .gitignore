@@ -1,2 +1,5 @@
 ### Intellij/Webstorm ###
 .idea/
+dist/
+app/
+node_modules/
