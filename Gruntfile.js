@@ -39,22 +39,16 @@ module.exports = function (grunt) {
 
     // Watches files for changes and runs tasks based on the changed files
     watch: {
-      js: {
-        files: ['<%= yeoman.app %>/scripts/{,*/}*.js'],
-        tasks: ['newer:jshint:all'],
-        options: {
-          livereload: true
-        }
-      },
-      jsTest: {
+      dev: {
         files: [
           'test/spec/{,*/}*.js',
           '<%= yeoman.app %>/scripts/{,*/}*.js'
         ],
-        tasks: ['newer:jshint:test', 'karma']
+        tasks: ['unit-test']
       },
       gruntfile: {
-        files: ['Gruntfile.js']
+        files: ['Gruntfile.js'],
+        tasks: ['newer:jshint:gruntfile']
       }
     },
 
@@ -64,8 +58,10 @@ module.exports = function (grunt) {
         jshintrc: '.jshintrc',
         reporter: require('jshint-stylish')
       },
-      all: [
-        'Gruntfile.js',
+      gruntfile: [
+        'Gruntfile.js'
+      ],
+      source: [
         '<%= yeoman.app %>/scripts/{,*/}*.js'
       ],
       test: {
@@ -81,25 +77,8 @@ module.exports = function (grunt) {
 
     // Empties folders to start fresh
     clean: {
-      dist: {
-        files: [{
-          dot: true,
-          src: [
-            '.tmp',
-            '<%= yeoman.dist %>/*',
-            '!<%= yeoman.dist %>/.git*'
-          ]
-        }]
-      },
       staging: '<%= yeoman.staging %>',
-      server: '.tmp'
-    },
-
-    // Performs rewrites based on rev and the useminPrepare configuration
-    usemin: {
-      options: {
-        assetsDirs: ['<%= yeoman.dist %>']
-      }
+      dist: '<%= yeoman.dist %>'
     },
 
     // Allow the use of non-minsafe AngularJS files. Automatically makes it
@@ -143,9 +122,7 @@ module.exports = function (grunt) {
       }
     },
 
-    // By default, your `index.html`'s <!-- Usemin block --> will take care of
-    // minification. These next options are pre-configured if you do not wish
-    // to use the Usemin blocks.
+    //Minify the release code
     uglify: {
       dist: {
         options: {
@@ -175,10 +152,29 @@ module.exports = function (grunt) {
       staging: {
         src: [
           '<%= yeoman.staging %>/module.js',
+          '<%= yeoman.staging %>/authenticationInterceptor.js',
+          '<%= yeoman.staging %>/userStorageService.js',
           '<%= yeoman.staging %>/authenticationService.js',
           '<%= yeoman.staging %>/securityService.js'
         ],
         dest: '<%= yeoman.dist %>/<%= pkg.name %>.js'
+      }
+    },
+
+    //bumps the version before a release
+    bump: {
+      options: {
+        files:          ['package.json',  'bower.json'],
+        updateConfigs:  ['pkg'],
+        commit: true,
+        commitMessage: 'Release v%VERSION%',
+        commitFiles: '-a',             //all files
+        createTag: true,
+        tagName: 'v%VERSION%',
+        tagMessage: 'Version %VERSION%',
+        push: true,
+        pushTo: 'upstream',
+        gitDescribeOptions: '--tags --always --abbrev=1 --dirty=-d' // options to use with '$ git describe'
       }
     },
 
@@ -191,33 +187,84 @@ module.exports = function (grunt) {
     }
   });
 
-  grunt.registerTask('dev', [
-    'watch'
+  grunt.registerTask('compile', [
+    'clean',            //Runs all clean tasks to clean staging and dist directories
+    'copy:staging',     //Copies files to the staging directory
+    'concat',           //Concatenates specified files in the staging directory
+    'ngmin',            //Makes concatenated Angular code in staging directory min-safe
+    'copy:dist',        //Copies concatenated, min-safe code to dist directory
+    'jshint:dist',      //Lints the code in dist directory
+    'uglify',           //Minifies the code in dist directory and creates a source map
+    'clean:staging'     //Removes the staging directory
   ]);
 
-  grunt.registerTask('test', [
-    'clean:server',
-    'karma'
+  grunt.registerTask('unit-test', [
+    'lint',             //Runs jshint on development code (src, test, gruntfile)
+    'karma'             //Runs unit-test using karma
+  ]);
+
+  grunt.registerTask('e2e-test', []);
+
+  grunt.registerTask('lint', [
+    'jshint:gruntfile', //Lints the gruntfile
+    'jshint:source',    //Lints all the files in /app/scripts
+    'jshint:test'       //Lints all the test code in /test/spec using .jshintrc file in test directory
   ]);
 
   grunt.registerTask('build', [
-    'clean:staging',
-    'clean:dist',
-    'copy:staging',
-    'concat',
-    'ngmin',
-    'copy:dist',
-    'newer:jshint:dist',
-    'uglify',
-    'usemin'
+    'unit-test',        //Runs unit tests
+    'e2e-test',         //Runs end-to-end tests
+    'compile'           //Generates distributable files
   ]);
 
-  grunt.registerTask('test-ci', [
-    'test',
-    'build'
+  grunt.registerTask('release', function (releaseType) {
+
+    if (['major', 'minor', 'patch'].indexOf(releaseType) === -1) {
+      return grunt.util.error('Release type was ' + releaseType + ' but it must be either major, minor, or patch');
+    }
+
+    promising(this,
+      ensureCleanMaster().then(function () {
+        return grunt.task.run(
+          'build',
+          'bump:' + releaseType
+        );
+      })
+    );
+  });
+
+  grunt.registerTask('ci', [
+    'build'            //test and compile the code
+  ]);
+
+  grunt.registerTask('develop', [
+    'watch'             //Watches /app/scripts and /test/spec for changes and runs unit-test task
   ]);
 
   grunt.registerTask('default', [
-    'test'
+    'develop'           //Shortcut to develop task
   ]);
+
+  // Helpers for custom tasks, mainly around promises / exec
+  var exec = require('faithful-exec');
+
+  function promising(task, promise) {
+    var done = task.async();
+    promise.then(function () {
+      done();
+    }, function (error) {
+      grunt.log.write(error + '\n');
+      done(false);
+    });
+  }
+
+  function ensureCleanMaster() {
+    return exec('git symbolic-ref HEAD').then(function (result) {
+      if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
+      return exec('git status --porcelain');
+    }).then(function (result) {
+      if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
+    });
+  }
+
 };
