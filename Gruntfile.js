@@ -187,6 +187,14 @@ module.exports = function (grunt) {
     }
   });
 
+  grunt.registerTask('add-dist-git', function(){
+    return exec('git add dist').then(function (result) {
+      if (result.stdout.trim() !== ''){
+        throw 'Unable to add dist directory';
+      }
+    });
+  });
+
   grunt.registerTask('compile', [
     'clean',            //Runs all clean tasks to clean staging and dist directories
     'copy:staging',     //Copies files to the staging directory
@@ -227,7 +235,9 @@ module.exports = function (grunt) {
       ensureCleanMaster().then(function () {
         return grunt.task.run(
           'build',
-          'bump:' + releaseType
+          'bump-only:' + releaseType,
+          'add-dist-git',
+          'bump-commit'
         );
       })
     );
