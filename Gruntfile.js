@@ -260,10 +260,14 @@ module.exports = function (grunt) {
 
   function ensureCleanMaster() {
     return exec('git symbolic-ref HEAD').then(function (result) {
-      if (result.stdout.trim() !== 'refs/heads/master') throw 'Not on master branch, aborting';
+      if (result.stdout.trim() !== 'refs/heads/master') {
+        throw 'Not on master branch, aborting';
+      }
       return exec('git status --porcelain');
     }).then(function (result) {
-      if (result.stdout.trim() !== '') throw 'Working copy is dirty, aborting';
+      if (result.stdout.trim() !== '') {
+        throw 'Working copy is dirty, aborting';
+      }
     });
   }
 
