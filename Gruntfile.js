@@ -234,8 +234,8 @@ module.exports = function (grunt) {
     promising(this,
       ensureCleanMaster().then(function () {
         return grunt.task.run(
-          'build',
           'bump-only:' + releaseType,
+          'build',
           'add-dist-git',
           'bump-commit'
         );
