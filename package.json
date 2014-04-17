@@ -1,0 +1,19 @@
+{
+  "name": "ua-security-website",
+  "version": "0.0.1",
+  "author": "David Spies <david.m.spies@gmail.com>",
+  "description": "",
+  "scripts": {
+    "start": "grunt"
+  },
+  "main": "index.html",
+  "dependencies": {},
+  "devDependencies": {
+    "grunt": "^0.4.4",
+    "grunt-contrib-watch": "^0.6.1"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=0.6"
+  }
+}
