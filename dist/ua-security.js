@@ -1,6 +1,6 @@
 /**
  * Simple token-based security service for AngularJS apps
- * @version v0.1.0 - 2014-04-17
+ * @version v0.1.0 - 2014-04-18
  * @link https://github.com/dspies/ua-security
  * @author David Spies <david.m.spies@gmail.com>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -24,7 +24,7 @@
 	          if (securityService.isAuthenticated()) {
 	            config.headers[securityService.getAuthTokenHeader()] = securityService.getCurrentUser().token;
 	          } else {
-	            delete config.headers['X-Auth-Token'];
+	            delete config.headers[securityService.getAuthTokenHeader()];
 	          }
 	        }]);
 	        return config || $q.when(config);

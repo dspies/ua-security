@@ -9,7 +9,7 @@ angular.module('ua.security')
           if (securityService.isAuthenticated()) {
             config.headers[securityService.getAuthTokenHeader()] = securityService.getCurrentUser().token;
           } else {
-            delete config.headers['X-Auth-Token'];
+            delete config.headers[securityService.getAuthTokenHeader()];
           }
         }]);
         return config || $q.when(config);
