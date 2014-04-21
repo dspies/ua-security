@@ -200,6 +200,8 @@
           spyOn(userStorageService, 'retrieveUser').andReturn(POPULATED_USER);
 
           //Situations that should result in truthy result
+          expect(securityService.hasAllRoles('')).toBe(true);
+          expect(securityService.hasAllRoles([])).toBe(true);
           expect(securityService.hasAllRoles('ROLE_USER')).toBe(true);
           expect(securityService.hasAllRoles(['ROLE_USER'])).toBe(true);
           expect(securityService.hasAllRoles('ROLE_USER, ROLE_ADMIN')).toBe(true);
@@ -211,6 +213,12 @@
           expect(securityService.hasAllRoles(['ROLE_SUPER'])).toBe(false);
           expect(securityService.hasAllRoles('ROLE_USER, ROLE_SUPER')).toBe(false);
           expect(securityService.hasAllRoles(['ROLE_USER', 'ROLE_SUPER'])).toBe(false);
+        });
+
+        it('throws an exception when supplied roles variable is undefined', function () {
+          expect(function () {
+            securityService.hasAllRoles();
+          }).toThrow('Must supply required roles');
         });
       });
 
@@ -225,6 +233,8 @@
           spyOn(userStorageService, 'retrieveUser').andReturn(POPULATED_USER);
 
           //Situations that should return truthy result
+          expect(securityService.hasAnyRoles('')).toBe(true);
+          expect(securityService.hasAnyRoles([])).toBe(true);
           expect(securityService.hasAnyRoles('ROLE_USER')).toBe(true);
           expect(securityService.hasAnyRoles(['ROLE_ADMIN'])).toBe(true);
           expect(securityService.hasAnyRoles('ROLE_USER, ROLE_ADMIN')).toBe(true);
@@ -237,6 +247,12 @@
           expect(securityService.hasAnyRoles(['ROLE_SUPER'])).toBe(false);
           expect(securityService.hasAnyRoles('ROLE_SUPER, ROLE_SPECIAL')).toBe(false);
           expect(securityService.hasAnyRoles(['ROLE_SUPER', 'ROLE_SPECIAL'])).toBe(false);
+        });
+
+        it('throws an exception when supplied roles variable is undefined', function () {
+          expect(function () {
+            securityService.hasAnyRoles();
+          }).toThrow('Must supply required roles');
         });
       });
 

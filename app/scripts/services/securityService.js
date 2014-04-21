@@ -45,36 +45,65 @@ angular.module('ua.security')
         return (this.getCurrentUser() === NULL_USER);
       };
 
-      function generateArray(str) {
-        if (!Array.isArray(str)) {
-          //remove whitespace and create array from the string
-          str = str
-              .replace(/\s+/g, '')
-              .split(',');
+      //Accepts a string or array and returns an array
+      function generateArrayFromArgument(stringOrArray) {
+
+        if (Array.isArray(stringOrArray)) {
+          return stringOrArray;
+        } else {
+          //remove whitespace
+          stringOrArray = stringOrArray.replace(/\s+/g, '');
+
+          //If it's not an empty string create array from the string
+          if (stringOrArray) {
+            return stringOrArray.split(',');
+          } else {
+            return [];
+          }
         }
-        return str;
+      }
+
+      function checkRolesAreDefinedOrThrow(requiredRoles){
+        if (typeof (requiredRoles) === 'undefined'){
+          throw 'Must supply required roles';
+        }
+      }
+
+      function checkRequiredRolesAgainstCurrentRoles(requiredRoles, securityContext, roleVerificationFn){
+        checkRolesAreDefinedOrThrow(requiredRoles);
+
+        requiredRoles = generateArrayFromArgument(requiredRoles);
+
+        if (requiredRoles.length === 0) {
+          //If the there are no required roles, the criteria is met by default
+          return true;
+        } else {
+          var currentRoles = securityContext.getCurrentUser().roles;
+
+          //Every required role is in the current user's roles
+          return roleVerificationFn(currentRoles, requiredRoles);
+        }
+      }
+
+      function allRolesPresent(currentRoles, requiredRoles){
+        return requiredRoles.every(function (role) {
+          return currentRoles.indexOf(role) !== -1;
+        });
       }
 
       this.hasAllRoles = function (requiredRoles) {
-        requiredRoles = generateArray(requiredRoles);
-
-        var currentRoles = this.getCurrentUser().roles;
-
-        //Every required role is in the current user's roles
-        return (requiredRoles.every(function(role){
-          return currentRoles.indexOf(role) !== -1;
-        }));
+        return checkRequiredRolesAgainstCurrentRoles(requiredRoles, this, allRolesPresent);
       };
 
-      this.hasAnyRoles = function (preferredRoles) {
-        preferredRoles = generateArray(preferredRoles);
-
-        var currentRoles = this.getCurrentUser().roles;
-
-        //Return true if any of the preferred roles are present
-        return (preferredRoles.some(function(role){
+      function anyRolesPresent (currentRoles, requiredRoles){
+        //Return true if any of the required roles are present
+        return (requiredRoles.some(function(role){
           return currentRoles.indexOf(role) !== -1;
         }));
+      }
+
+      this.hasAnyRoles = function (requiredRoles) {
+        return checkRequiredRolesAgainstCurrentRoles(requiredRoles, this, anyRolesPresent);
       };
 
     }
