@@ -1,6 +1,6 @@
 /**
  * Simple token-based security service for AngularJS apps
- * @version v0.1.1 - 2014-04-21
+ * @version v0.1.2 - 2014-04-21
  * @link https://github.com/dspies/ua-security
  * @author David Spies <david.m.spies@gmail.com>
  * @license MIT License, http://www.opensource.org/licenses/MIT
