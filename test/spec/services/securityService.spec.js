@@ -87,7 +87,7 @@
                 expect(userStorageService.storeUser).toHaveBeenCalledWith(POPULATED_USER);
                 expect(storedUser).toBe(POPULATED_USER);
               }, function(error){
-                expect('errorCallback').not.toBe('called with ' + error);
+                expect('errorCallback not').toBe('called with ' + error);
               });
 
           authDeferred.resolve(POPULATED_USER);
@@ -98,13 +98,12 @@
             'promise is rejected', function () {
 
           securityService.login(USERNAME, PASSWORD)
-              .then(function(user){
-                expect('successCallback').not.toBe('called with ' + user);
-              }, function(error){
-                expect(error).not.toBeNull();
-                expect(error).toEqual('403');
-                expect(securityService.getCurrentUser()).toBe(NULL_USER);
-              });
+            .then(function(user){
+              expect('successCallback not').toBe('called with ' + user);
+            }, function(error){
+              expect(error).not.toBeNull();
+              expect(error).toEqual('403');
+            });
 
           expect(authenticationService.authenticate).toHaveBeenCalledWith(USERNAME, PASSWORD);
 
@@ -127,7 +126,7 @@
             .then(function(){
               expect(userStorageService.deleteUser).toHaveBeenCalled();
             }, function(error){
-              expect('errorCallback').not.toBe('called with ' + error);
+              expect('errorCallback not').toBe('called with ' + error);
             });
 
           logoutDeferred.resolve();
@@ -139,7 +138,7 @@
 
           securityService.logout()
               .then(function(){
-                expect('successCallback').not.toBe('called');
+                expect('successCallback not').toBe('called');
               }, function(error){
                 expect(error).not.toBeNull();
                 expect(error).toEqual('404');

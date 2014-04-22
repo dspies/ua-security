@@ -25,12 +25,12 @@ angular.module('ua.security')
         };
 
         $http.post(authenticationUrl, user)
-            .success(function(data){
-              return deferred.resolve(data);
-            })
-            .error(function(data, status){
-              return deferred.reject(status);
-            });
+          .success(function(data){
+            deferred.resolve(data);
+          })
+          .error(function(data, status){
+            deferred.reject(status);
+          });
 
         return deferred.promise;
       };
@@ -39,12 +39,12 @@ angular.module('ua.security')
         var deferred = $q.defer();
 
         $http.post(logoutUrl)
-            .success(function(data){
-              deferred.resolve(data);
-            })
-            .error(function(data, status){
-              deferred.reject(status);
-            });
+          .success(function(data){
+            deferred.resolve(data);
+          })
+          .error(function(data, status){
+            deferred.reject(status);
+          });
 
         return deferred.promise;
       };

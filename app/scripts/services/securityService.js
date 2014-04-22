@@ -23,18 +23,16 @@ angular.module('ua.security')
       this.login = function(username, password){
         return authenticationService.authenticate(username, password)
           .then(function(user){
-              userStorageService.storeUser(user);
-              return user;
-            }, function () {
-              userStorageService.deleteUser();
-            });
+            userStorageService.storeUser(user);
+            return user;
+          });
       };
 
       this.logout = function () {
         return authenticationService.logout()
-            .then(function(){
-              userStorageService.deleteUser();
-            });
+          .then(function(){
+            userStorageService.deleteUser();
+          });
       };
 
       this.isAuthenticated = function () {
