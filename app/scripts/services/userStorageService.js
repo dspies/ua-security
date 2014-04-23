@@ -5,11 +5,13 @@ angular.module('ua.security')
 
     function UserStorageService($window){
       this.storeUser = function (user) {
-        $window.sessionStorage.setItem('ua-user', user);
+        $window.sessionStorage.setItem('ua-user', JSON.stringify(user));
       };
 
       this.retrieveUser = function () {
-        return $window.sessionStorage.getItem('ua-user');
+        var user = $window.sessionStorage.getItem('ua-user');
+
+        return user ? JSON.parse(user) : undefined;
       };
 
       this.deleteUser = function(){

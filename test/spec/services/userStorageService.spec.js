@@ -25,11 +25,11 @@
         var store = {};
         //mock session storage
         spyOn($window.sessionStorage, 'getItem').andCallFake(function(key){
-          return store[key];
+          return store[key] ? store[key].toString() : undefined;
         });
 
         spyOn($window.sessionStorage, 'setItem').andCallFake(function(key, value){
-          store[key] = value;
+          store[key] = value.toString();
         });
 
         spyOn($window.sessionStorage, 'removeItem').andCallFake(function (key) {
@@ -49,10 +49,10 @@
           var store = {};
           return {
             getItem: function(key) {
-              return store[key];
+              return store[key] ? store[key].toString() : undefined;
             },
             setItem: function(key, value) {
-              store[key] = value;
+              store[key] = value.toString();
             },
             removeItem: function(key) {
               delete store[key];
@@ -76,10 +76,10 @@
 
     it('session storage mock is working', function () {
       //setItem on the mock implementation
-      $window.sessionStorage.setItem('ua-user', DEFAULT_USER);
+      $window.sessionStorage.setItem('ua-user', JSON.stringify(DEFAULT_USER));
 
       //check that the mock returns the expect JSON object
-      expect($window.sessionStorage.getItem('ua-user')).toBe(DEFAULT_USER);
+      expect($window.sessionStorage.getItem('ua-user')).toBe(JSON.stringify(DEFAULT_USER));
     });
 
     describe('storeUser', function () {
@@ -91,7 +91,7 @@
       it('persists the user to the session storage', function () {
         userStorageService.storeUser(DEFAULT_USER);
 
-        expect($window.sessionStorage.getItem('ua-user')).toBe(DEFAULT_USER);
+        expect($window.sessionStorage.getItem('ua-user')).toEqual(JSON.stringify(DEFAULT_USER));
       });
 
     });
@@ -103,10 +103,15 @@
       });
 
       it('retrieves the user from session storage', function () {
-        $window.sessionStorage.setItem('ua-user', DEFAULT_USER);
+        $window.sessionStorage.setItem('ua-user', JSON.stringify(DEFAULT_USER));
 
-        expect(userStorageService.retrieveUser()).toBe(DEFAULT_USER);
+        expect(userStorageService.retrieveUser()).toEqual(DEFAULT_USER);
       });
+
+      it('returns undefined if the user is not found in session storage', function () {
+        expect(userStorageService.retrieveUser()).toBeUndefined();
+      });
+
     });
 
     describe('deleteUser', function () {
@@ -116,7 +121,7 @@
       });
 
       it('removes the user key/value from session storage', function () {
-        $window.sessionStorage.setItem('ua-user', DEFAULT_USER);
+        $window.sessionStorage.setItem('ua-user', JSON.stringify(DEFAULT_USER));
 
         userStorageService.deleteUser();
 
