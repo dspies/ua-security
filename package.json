@@ -1,7 +1,7 @@
 {
   "name": "ua-security",
   "description": "Simple token-based security service for AngularJS apps",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "filename": "ua-security.min.js",
   "main": "./dist/ua-security.min.js",
   "homepage": "https://github.com/dspies/ua-security",
