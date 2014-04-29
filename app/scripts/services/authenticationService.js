@@ -3,12 +3,12 @@
 angular.module('ua.security')
   .provider('authenticationService', [function(){
 
-    var authenticationUrl = '/login';
+    var authenticationUrl = 'api/login';
     this.setAuthenticationUrl = function(value){
       authenticationUrl = value;
     };
 
-    var logoutUrl = '/logout';
+    var logoutUrl = 'api/logout';
     this.setLogoutUrl = function(value){
       logoutUrl = value;
     };

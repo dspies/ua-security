@@ -1,6 +1,6 @@
 /**
  * Simple token-based security service for AngularJS apps
- * @version v0.1.5 - 2014-04-28
+ * @version v0.1.5 - 2014-04-29
  * @link https://github.com/dspies/ua-security
  * @author David Spies <david.m.spies@gmail.com>
  * @license MIT License, http://www.opensource.org/licenses/MIT
@@ -60,12 +60,12 @@
 	angular.module('ua.security')
 	  .provider('authenticationService', [function(){
 	
-	    var authenticationUrl = '/login';
+	    var authenticationUrl = 'api/login';
 	    this.setAuthenticationUrl = function(value){
 	      authenticationUrl = value;
 	    };
 	
-	    var logoutUrl = '/logout';
+	    var logoutUrl = 'api/logout';
 	    this.setLogoutUrl = function(value){
 	      logoutUrl = value;
 	    };

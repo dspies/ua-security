@@ -44,7 +44,7 @@
 
       it('is successful with good credentials and returns a promise from authentication endpoint', function(){
 
-        $httpBackend.expectPOST('/login', DEFAULT_USER_CREDENTIALS)
+        $httpBackend.expectPOST('api/login', DEFAULT_USER_CREDENTIALS)
             .respond(200, POPULATED_USER);
 
         var returnedPromise = authenticationService.authenticate(DEFAULT_USERNAME, DEFAULT_PASSWORD);
@@ -59,7 +59,7 @@
 
       it('fails to authenticate with bad credentials and returns 403 error from authentication endpoint', function(){
 
-        $httpBackend.expectPOST('/login', DEFAULT_USER_CREDENTIALS)
+        $httpBackend.expectPOST('api/login', DEFAULT_USER_CREDENTIALS)
             .respond(403, '');
 
         var returnedPromise = authenticationService.authenticate(DEFAULT_USERNAME, DEFAULT_PASSWORD);
@@ -72,7 +72,6 @@
             });
 
         $httpBackend.flush();
-
       });
 
     });
@@ -88,7 +87,7 @@
         spyOn(securityService, 'isAuthenticated').andReturn(true);
         spyOn(securityService, 'getCurrentUser').andReturn(POPULATED_USER);
 
-        $httpBackend.expectPOST('/logout',
+        $httpBackend.expectPOST('api/logout',
             undefined,
             function(headers){
               return headers['X-Auth-Token'] === POPULATED_USER.token;
@@ -108,7 +107,7 @@
 
       it('fails without a header auth token and returns 404 error from logout endpoint', function(){
 
-        $httpBackend.expectPOST('/logout',
+        $httpBackend.expectPOST('api/logout',
             undefined,
             function(header){
               return !('X-Auth-Token' in header);
