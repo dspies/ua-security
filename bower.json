@@ -1,7 +1,7 @@
 {
-  "name": "ua-security",
+  "name": "angular-ua-security",
   "version": "0.1.6",
-  "main": "dist/ua-security.js",
+  "main": "dist/angular-ua-security.js",
   "ignore": [
     "app",
     "test",

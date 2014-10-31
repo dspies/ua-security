@@ -1,9 +1,9 @@
 {
-  "name": "ua-security",
+  "name": "angular-ua-security",
   "description": "Simple token-based security service for AngularJS apps",
   "version": "0.1.6",
-  "filename": "ua-security.min.js",
-  "main": "./dist/ua-security.min.js",
+  "filename": "angular-ua-security.min.js",
+  "main": "./dist/angular-ua-security.js",
   "homepage": "https://github.com/dspies/ua-security",
   "author": "David Spies <david.m.spies@gmail.com>",
   "repository": {
