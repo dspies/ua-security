@@ -60,9 +60,9 @@
             <pre class="code">
 angular.module('your-app', ['ua.security'])
   .config(function(authenticationServiceProvider, securityServiceProvider){
-    authenticationServiceProvider.setAuthenticationUrl = 'https://api.domain.com/login';
-    authenticationServiceProvider.setLogoutUrl = 'https://api.domain.com/logout';
-    securityServiceProvider.setAuthTokenHeader = 'auth-token';
+    authenticationServiceProvider.setAuthenticationUrl('https://api.domain.com/login');
+    authenticationServiceProvider.setLogoutUrl('https://api.domain.com/logout');
+    securityServiceProvider.setAuthTokenHeader('auth-token');
   });</pre>
 
             <h3><a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
