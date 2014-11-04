@@ -6,3 +6,7 @@ ua-security
 ====
 A simple token-based security module for AngularJS.  For more information please go to the [project homepage](http://dspies.github.io/ua-security/)
 
+#### Installation
+```
+bower install angular-ua-security
+```
